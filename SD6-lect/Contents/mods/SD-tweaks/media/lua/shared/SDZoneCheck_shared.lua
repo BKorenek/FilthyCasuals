@@ -330,3 +330,34 @@ function checkZoneAtXY(x, y)
 	end
 	return zonetier[1], "Unnamed Zone", x, y
 end
+
+
+local function logZoneInfo()
+    if not isServer() then return end
+    
+    local file = getFileWriter("static/zones.txt", true, false)
+    
+    for zoneName, zoneData in pairs(Zone.list) do
+        local x1, y1, x2, y2 = zoneData[1], zoneData[2], zoneData[3], zoneData[4]
+        local tier = zoneData[5]
+        local toxic = zoneData[7] == "Toxic" and 1 or 0
+        
+        local lineStr = string.format("%s, %d, %d, %d, %d, %s, %d\n",
+            zoneName, x1, y1, x2, y2, tostring(tier), toxic)
+        file:write(lineStr)
+    end
+    
+    for zoneName, zoneData in pairs(NestedZone.list) do
+        local x1, y1, x2, y2 = zoneData[1], zoneData[2], zoneData[3], zoneData[4]
+        local tier = zoneData[5]
+        local toxic = zoneData[7] == "Toxic" and 1 or 0
+        
+        local lineStr = string.format("%s, %d, %d, %d, %d, %s, %d\n",
+            zoneName, x1, y1, x2, y2, tostring(tier), toxic)
+        file:write(lineStr)
+    end
+    
+    file:close()
+end
+
+Events.OnServerStarted.Add(logZoneInfo)
